@@ -1,16 +1,24 @@
 #!/usr/bin/lua
 
-if not io.open("~/.love_init.ld") then
-  print("making ~/.love_init.ld file")
-  io.open("~/.love_init.ld", "w")
-  :write('return {\n\tsrc = ""\n}')
 
-  print("Please change string for ~/.love_project.lua")
+local _CONF = "~/.love_init.conf"
+
+if not io.open(_CONF) then
+  print("making ".. _CONF .. " file")
+  local finit = io.open(_CONF, "w")
+  for line in io.open("./templates/love_init.conf"):lines() do
+    finit:write(line, "\n")
+  end
+  finit:close()
+
+  local s = string.format("cp %s/%s %s", io.popen("pwd"):read(), arg[-1], _CONF)
+  assert(os.execute(s), "Couldn't copy into: ", _CONF)
+  print("Please change src correctly in:", _CONF)
   os.exit()
 end
 
-local user = require(".love_init.ld")
-
+local user = require(".love_init.conf")
+assert(user.src, "Edit your ~/.love_init.conf")
 
 --- writes a line to the file selected.
 -- @function write_line
@@ -35,11 +43,11 @@ function build_env(loc, name, src)
 end
 
 
---- makes the files from template.
+--- appends from template with basic settings.
 -- @param loc location of the project directory.
 -- @param name the name of project.
 -- @param user a @{user} table.
-local function make_files(loc, name, user)
+local function append_files(loc, name, user)
   write_line(loc, "config.ld", string.format(
     "project = %q\ntitle = %q", name, name .. " docs"))
   write_line(loc, "conf.lua", string.format(
