@@ -1,7 +1,7 @@
 #!/usr/bin/lua
 
 
-local _CONF = "~/.love_init.conf"
+local _CONF = io.popen("echo $HOME"):read() .. "/.love_init.conf"
 
 if not io.open(_CONF) then
   print("making ".. _CONF .. " file")
@@ -11,13 +11,13 @@ if not io.open(_CONF) then
   end
   finit:close()
 
-  local s = string.format("cp %s/%s %s", io.popen("pwd"):read(), arg[-1], _CONF)
+  local s = string.format("cp %s/%s %s", io.popen("pwd"):read(), _CONF)
   assert(os.execute(s), "Couldn't copy into: ", _CONF)
   print("Please change src correctly in:", _CONF)
   os.exit()
 end
 
-local user = require(".love_init.conf")
+local user = dofile(_CONF, "t")
 assert(user.src, "Edit your ~/.love_init.conf")
 
 --- writes a line to the file selected.
