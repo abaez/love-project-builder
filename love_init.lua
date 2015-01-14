@@ -1,12 +1,14 @@
 #!/usr/bin/lua
 
-if not io.open(".config") then
+if not io.open("~/.love_project.lua") then
+  print("making ~/.config file")
   io.open(".config", "w"):write('return {\n\tlpb = ""\n}')
 
+  print("Please change string for ~/.love_project.lua")
   os.exit()
 end
 
-local conf = require(".config")
+local conf = require(".love_project.lua")
 
 
 --- writes a line to the file selected.
