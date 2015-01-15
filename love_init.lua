@@ -3,22 +3,8 @@
 
 local _CONF = io.popen("echo $HOME"):read() .. "/.love_init.conf"
 
-if not io.open(_CONF) then
-  print("making ".. _CONF .. " file")
-  local finit = io.open(_CONF, "w")
-  for line in io.open("./templates/love_init.conf"):lines() do
-    finit:write(line, "\n")
-  end
-  finit:close()
 
-  local s = string.format("cp %s/%s %s", io.popen("pwd"):read(), _CONF)
-  assert(os.execute(s), "Couldn't copy into: ", _CONF)
-  print("Please change src correctly in:", _CONF)
-  os.exit()
-end
 
-local user = dofile(_CONF, "t")
-assert(user.src, "Edit your ~/.love_init.conf")
 
 --- writes a line to the file selected.
 -- @function write_line
@@ -26,7 +12,7 @@ assert(user.src, "Edit your ~/.love_init.conf")
 -- @param file to write to.
 -- @param str to write.
 -- @param m optional mode for file to write. Defaults to "a+" if left empty.
-function write_line(loc, file, str, m)
+local function write_line(loc, file, str, m)
   io.open(loc .. "/" .. file, m or "a+"):write(str):close()
 end
 
@@ -35,13 +21,16 @@ end
 -- @param loc location of the love project path.
 -- @param name the name love project path.
 -- @param src the source path of the src.
-function build_env(loc, name, src)
+local function build_env(loc, name, src)
   local src  = src or user.src
+
+  assert(os.execute("mkdir " .. loc), "Couldn't make: " .. loc)
 
   os.execute("cd " .. loc ..
              "; hg init; hg commit -A -m 'initial commit'")
-end
 
+
+end
 
 --- appends from template with basic settings.
 -- @param loc location of the project directory.
@@ -56,6 +45,31 @@ local function append_files(loc, name, user)
   write_line(loc, "main.lua", "--- " .. name, "r+")
 end
 
+--- makes the config file for love_init
+-- @param the configure default location.
+function make_conf(file)
+  local file = file or _CONF
+
+  print("making the file: " .. file)
+
+  local finit = io.open(file, "w")
+  for line in io.open("./templates/love_init.conf"):lines() do
+    finit:write(line, "\n")
+  end
+  finit:close()
+
+  local s = string.format("cp %s/%s %s", io.popen("pwd"):read(), file)
+  assert(os.execute(s), "Couldn't copy into: ", file)
+  print("Please change src correctly in:", file)
+  os.exit()
+end
+
+if not io.open(_CONF) then
+  make_conf(_CONF)
+else
+  local user = dofile(_CONF, "t")
+  assert(user.src, "Edit: '" .. _CONF .. "' to run")
+end
 
 local help = [=[
   love_init v0.1
