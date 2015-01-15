@@ -61,30 +61,47 @@ local function append_files(loc, name, user)
 end
 
 --- makes the config file for love_init
--- @param the configure default location.
-local function make_conf(file)
+-- @param file the configure default location.
+-- @param src the source location of love project builder.
+local function make_conf(file, src)
   local file = file or _CONF
 
   print("making the file: " .. file)
-
   local finit = io.open(file, "w")
-  for line in io.open("./templates/love_init.conf"):lines() do
+  for line in io.open(src .."/templates/love_init.conf"):lines() do
     finit:write(line, "\n")
   end
   finit:close()
 
-  local s = string.format("cp %s/%s %s", io.popen("pwd"):read(), file)
-  assert(os.execute(s), "Couldn't copy into: ", file)
   print("Please change src correctly in:", file)
   os.exit()
 end
 
-if not io.open(_CONF) then
-  make_conf(_CONF)
-else
-  local user = dofile(_CONF, "t")
-  assert(user.src, "Edit: '" .. _CONF .. "' to run")
+--- gets the user configuration file.
+-- @param file the location of the configuration file to make.
+-- @param src the location of the love project builder.
+local function get_user(file, src)
+  local user = ""
+  if not io.open(file) then
+    assert(src, "run with [-s <source>] argument")
+    make_conf(file, src)
+  else
+    user = dofile(file, "t")
+    assert(user.src, "Edit src: '" .. file .. "' to run")
+  end
+
+  return user
 end
+
+--- a temporary table for command run.
+-- @src see @{src}.
+-- @name see @{name}.
+-- @path see @{path}.
+local tmp = {
+  src = false,
+  name = false,
+  path = false,
+}
 
 local help = [=[
   love_init v0.1
@@ -100,16 +117,22 @@ local help = [=[
 if #arg == 0 or arg[1] == '-h' then
   print(help)
 else
+  assert(arg[1] ~= '-d' and arg[1] ~= '-p' and arg[1] ~= '-s', help)
+  tmp.name = arg[1]
+
   if #arg > 1 then
     for i = 2, #arg do
       if arg[i] == '-p' then
-        print("making project:", arg[i+1])
-        build_env(arg[i+1] .. "/" .. arg[1], arg[1])
+        tmp.path = arg[i+1] .. "/" .. tmp.name
+      elseif arg[i]  == '-s' then
+        tmp.src = arg[i+1]
       end
     end
+
+    print("making environment project: " .. tmp.name)
+    build_env(tmp.path, tmp.name, tmp.src, get_user(_CONF, tmp.src))
   else
-    assert(arg[1] ~= '-d' and arg[1] ~= '-p' and arg[1] ~= '-s', help)
-    print("making environment project: " .. arg[1])
-    build_env(io.popen("pwd"):read() .. "/" .. arg[1], arg[1])
+    print("making environment project: " .. tmp.name)
+    build_env(io.popen("pwd"):read() .. "/" .. tmp.name, tmp.name)
   end
 end
