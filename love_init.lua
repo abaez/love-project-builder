@@ -75,27 +75,37 @@ local function get_user(file, src)
   return user
 end
 
+--- gives the string for the specified vcs.
+-- @param vcs choose which DVCS to use. If 'git' not given, then auto to 'hg'.
+function vcs_str(vcs)
+  return vcs == 'git' and
+    "git init; git add -A; git commit -m 'initial commit'" or
+    "hg init; hg commit -Am 'initial commit'"
+end
+
 --- creates the intialized directory for the love project.
 -- @param loc location of the project directory.
 -- @param name the name love project path.
 -- @param src the source path of love project builder.
 -- @param user see @{user}.
-local function build_env(loc, name, src, user)
+local function build_env(loc, name, src, user, vcs)
   assert(os.execute("mkdir " .. loc), "Couldn't make: " .. loc)
   copy_templates(loc, {"config.ld", "conf.lua", "main.lua"}, src or user.src)
   append_files(loc, name, user)
 
-  os.execute("cd " .. loc .. "; hg init; hg commit -A -m 'initial commit'")
+  os.execute("cd " .. loc .. ";" .. vcs)
 end
 
 --- a temporary table for command run.
 -- @src see @{src}.
 -- @name see @{name}.
 -- @loc see @{loc}.
+-- @vcs see @{vcs}.
 local tmp = {
   src = false,
   name = false,
   loc = false,
+  vcs = false,
   cwd = io.popen("pwd"):read() .. "/"
 }
 
@@ -107,6 +117,7 @@ local help = [=[
   <name>      name of the love project
   -p <path>   the location of the installation for the project.
   -s <source> the location for the source of love_init.
+  -g          use 'git' to instead of 'hg'. Automates to 'hg' if not given.
   -h          prints this text
 ]=]
 
@@ -124,6 +135,8 @@ else
         tmp.loc = arg[i+1] .. "/" .. tmp.name
       elseif arg[i]  == '-s' then
         tmp.src = arg[i+1]
+      elseif arg[i] == '-v' then
+        tmp.vcs = arg[i+1]
       end
     end
 
@@ -132,9 +145,14 @@ else
       tmp.loc or tmp.cwd .. tmp.name,
       tmp.name,
       tmp.src,
-      get_user(_CONF, tmp.src))
+      get_user(_CONF, tmp.src),
+      tmp.vcs)
   else
     print("making environment project: " .. tmp.name)
-    build_env(tmp.cwd .. tmp.name, tmp.name, tmp.src, get_user(_CONF, tmp.src))
+    build_env(tmp.cwd .. tmp.name,
+              tmp.name,
+              tmp.src,
+              get_user(_CONF, tmp.src),
+              tmp.vcs)
   end
 end
