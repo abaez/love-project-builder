@@ -16,9 +16,10 @@ local function write_line(loc, file, str, m)
 end
 
 --- creates the intialized directory for the love project.
--- @param loc location of the love project path.
+-- @param loc location of the project directory.
 -- @param name the name love project path.
--- @param src the source path of the src.
+-- @param src the source path of love project builder.
+-- @param user see @{user}.
 local function build_env(loc, name, src, user)
   assert(os.execute("mkdir " .. loc), "Couldn't make: " .. loc)
 
@@ -29,10 +30,10 @@ local function build_env(loc, name, src, user)
 
 end
 
---- copys the templates to their destination.
--- @param loc the location of the project directory.
+--- copies the templates to their destination.
+-- @param loc see @{loc}.
 -- @param templates a table containing the name of the template files.
--- @param src optional source location of love project builder.
+-- @param src see @{src}.
 local function copy_templates(loc, templates, src)
   local templates = templates or user.templates
 
@@ -45,9 +46,9 @@ local function copy_templates(loc, templates, src)
 end
 
 --- appends from template with basic settings.
--- @param loc location of the project directory.
--- @param name the name of project.
--- @param user a @{user} table.
+-- @param loc see @{loc}.
+-- @param name see @{name}.
+-- @param user see @{user}.
 local function append_files(loc, name, user)
   write_line(loc, "config.ld", string.format(
     "project = %q\ntitle = %q", name, name .. " docs"))
@@ -58,8 +59,8 @@ local function append_files(loc, name, user)
 end
 
 --- makes the config file for love_init
--- @param file the configure default location.
--- @param src the source location of love project builder.
+-- @param file the absolute location of default configuration file.
+-- @param src see @{src}.
 local function make_conf(file, src)
   print("making the file: " .. file)
   local finit = io.open(file, "w")
@@ -74,7 +75,7 @@ end
 
 --- gets the user configuration file.
 -- @param file the location of the configuration file to make.
--- @param src the location of the love project builder.
+-- @param src see @{src}.
 local function get_user(file, src)
   local user = ""
   if not io.open(file) then
@@ -91,11 +92,11 @@ end
 --- a temporary table for command run.
 -- @src see @{src}.
 -- @name see @{name}.
--- @path see @{path}.
+-- @loc see @{loc}.
 local tmp = {
   src = false,
   name = false,
-  path = false,
+  loc = false,
 }
 
 local help = [=[
@@ -118,14 +119,14 @@ else
   if #arg > 1 then
     for i = 2, #arg do
       if arg[i] == '-p' then
-        tmp.path = arg[i+1] .. "/" .. tmp.name
+        tmp.loc = arg[i+1] .. "/" .. tmp.name
       elseif arg[i]  == '-s' then
         tmp.src = arg[i+1]
       end
     end
 
     print("making environment project: " .. tmp.name)
-    build_env(tmp.path, tmp.name, tmp.src, get_user(_CONF, tmp.src))
+    build_env(tmp.loc, tmp.name, tmp.src, get_user(_CONF, tmp.src))
   else
     print("making environment project: " .. tmp.name)
     build_env(io.popen("pwd"):read() .. "/" .. tmp.name, tmp.name)
