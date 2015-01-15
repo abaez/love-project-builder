@@ -104,7 +104,7 @@ local help = [=[
   usage: love_init <name> [-s <source>] [-p <path>] [-d <path>]
 
   Available actions:
-  <name>      name of the lapis project
+  <name>      name of the love project
   -p <path>   the location of the installation for the project.
   -s <source> the location for the source of love_init.
   -h          prints this text
@@ -112,8 +112,10 @@ local help = [=[
 
 if #arg == 0 or arg[1] == '-h' then
   print(help)
+elseif arg[1] == '-s' then
+  get_user(_CONF, arg[2])
 else
-  assert(arg[1] ~= '-d' and arg[1] ~= '-p' and arg[1] ~= '-s', help)
+  assert(arg[1] ~= '-d' and arg[1] ~= '-p', help)
   tmp.name = arg[1]
 
   if #arg > 1 then
