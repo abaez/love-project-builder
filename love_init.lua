@@ -7,7 +7,6 @@ local _CONF = io.popen("echo $HOME"):read() .. "/.love_init.conf"
 
 
 --- writes a line to the file selected.
--- @function write_line
 -- @param loc location of the file.
 -- @param file to write to.
 -- @param str to write.
@@ -17,7 +16,6 @@ local function write_line(loc, file, str, m)
 end
 
 --- creates the intialized directory for the love project.
--- @function build_env
 -- @param loc location of the love project path.
 -- @param name the name love project path.
 -- @param src the source path of the src.
@@ -26,10 +24,27 @@ local function build_env(loc, name, src)
 
   assert(os.execute("mkdir " .. loc), "Couldn't make: " .. loc)
 
+
   os.execute("cd " .. loc ..
              "; hg init; hg commit -A -m 'initial commit'")
 
 
+end
+
+--- copys the templates to their destination.
+-- @param loc the location of the project directory.
+-- @param templates a table containing the name of the template files.
+-- @param src optional source location of love project builder.
+local function copy_templates(loc, templates, src)
+  local src = src or user.src
+  local templates = templates or user.templates
+
+  for _, template in ipairs(templates) do
+    local ftemplate = io.open(loc .. "/" .. template, "w")
+    for line in io.open(src .. "/templates/" .. template):lines() do
+      ftemplate:write(line, "\n")
+    end
+  end
 end
 
 --- appends from template with basic settings.
@@ -47,7 +62,7 @@ end
 
 --- makes the config file for love_init
 -- @param the configure default location.
-function make_conf(file)
+local function make_conf(file)
   local file = file or _CONF
 
   print("making the file: " .. file)
