@@ -1,3 +1,4 @@
+---
 -- @module main
 -- @alias love
 
@@ -19,5 +20,3 @@ end
 -- @param key is the key preseed on keyboard.
 function love.keypressed(key)
 end
-
-
