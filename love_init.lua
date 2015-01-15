@@ -74,7 +74,7 @@ local function make_conf(file, src)
 end
 
 --- gets the user configuration file.
--- @param file the location of the configuration file to make.
+-- @param file see @{file}.
 -- @param src see @{src}.
 local function get_user(file, src)
   local user = ""
@@ -97,6 +97,7 @@ local tmp = {
   src = false,
   name = false,
   loc = false,
+  cwd = io.popen("pwd"):read() .. "/"
 }
 
 local help = [=[
@@ -126,9 +127,13 @@ else
     end
 
     print("making environment project: " .. tmp.name)
-    build_env(tmp.loc, tmp.name, tmp.src, get_user(_CONF, tmp.src))
+    build_env(
+      tmp.loc or tmp.cwd .. tmp.name,
+      tmp.name,
+      tmp.src,
+      get_user(_CONF, tmp.src))
   else
     print("making environment project: " .. tmp.name)
-    build_env(io.popen("pwd"):read() .. "/" .. tmp.name, tmp.name)
+    build_env(tmp.cwd .. tmp.name, tmp.name, tmp.src, get_user(_CONF, tmp.src))
   end
 end
