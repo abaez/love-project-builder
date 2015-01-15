@@ -19,9 +19,7 @@ end
 -- @param loc location of the love project path.
 -- @param name the name love project path.
 -- @param src the source path of the src.
-local function build_env(loc, name, src)
-  local src  = src or user.src
-
+local function build_env(loc, name, src, user)
   assert(os.execute("mkdir " .. loc), "Couldn't make: " .. loc)
 
 
@@ -36,7 +34,6 @@ end
 -- @param templates a table containing the name of the template files.
 -- @param src optional source location of love project builder.
 local function copy_templates(loc, templates, src)
-  local src = src or user.src
   local templates = templates or user.templates
 
   for _, template in ipairs(templates) do
@@ -64,8 +61,6 @@ end
 -- @param file the configure default location.
 -- @param src the source location of love project builder.
 local function make_conf(file, src)
-  local file = file or _CONF
-
   print("making the file: " .. file)
   local finit = io.open(file, "w")
   for line in io.open(src .."/templates/love_init.conf"):lines() do
