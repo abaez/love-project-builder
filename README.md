@@ -15,6 +15,7 @@ configurations for rapid prototyping. Doing more work with less set up.
 *   [Mercurial](http://mercurial.selenic.com/)
 
 Optional:
+
 *   [LDoc](http://stevedonovan.github.io/ldoc/index.html)
 *   [Git](http://www.git-scm.com/)
 
@@ -52,7 +53,7 @@ git simply use the `-g` argument.
     love_init <name> -g
 Lastly, you can combine commands:
 
-    love_init <name> -p <path> -s <src>
+    love_init <name> -p <path> -s <src> -g
 If you have ldoc installed, then when you already have a project you can run
 `ldoc .` to build api documentation.
 

@@ -135,8 +135,8 @@ else
         tmp.loc = arg[i+1] .. "/" .. tmp.name
       elseif arg[i]  == '-s' then
         tmp.src = arg[i+1]
-      elseif arg[i] == '-v' then
-        tmp.vcs = arg[i+1]
+      elseif arg[i] == '-g' then
+        tmp.vcs = 'git'
       end
     end
 
