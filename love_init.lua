@@ -4,6 +4,7 @@
 -- @license MIT (see @{LICENSE})
 -- @module love_init
 
+local common = require("common")
 local templates = require("templates")
 
 local _CONF = io.popen("echo $HOME"):read() .. "/.love_init.conf"
@@ -14,51 +15,12 @@ local _CONF = io.popen("echo $HOME"):read() .. "/.love_init.conf"
 -- @param name see @{name}.
 -- @param user see @{user}.
 local function append_files(loc, name, user)
-  templates:writ_line(loc, "config.ld", string.format(
+  templates:write_line(loc, "config.ld", string.format(
     "project = %q\n  title = %q", name, name .. " docs"))
-  templates:writ_line(loc, "conf.lua", string.format(
+  templates:write_line(loc, "conf.lua", string.format(
     "  t.title  = %q\n  t.author = %q\n  t.url = %q\nend",
     name, user.author, user.url))
---  templates:writ_line(loc, "main.lua", "--- " .. name .. "\n", "r+")
-end
-
---- makes the config file for love_init
--- @param file the absolute location of default configuration file.
--- @param src see @{src}.
-local function make_conf(file, src)
-  print("making the file: " .. file)
-  local finit = io.open(file, "w")
-  for line in io.open(src .."/templates/love_init.conf"):lines() do
-    finit:write(line, "\n")
-  end
-  finit:close()
-
-  print("Please change src correctly in:", file)
-  os.exit()
-end
-
---- gets the user configuration file.
--- @param file see @{file}.
--- @param src see @{src}.
-local function get_user(file, src)
-  local user = ""
-  if not io.open(file) then
-    assert(src, "run with [-s <source>] argument")
-    make_conf(file, src)
-  else
-    user = dofile(file, "t")
-    assert(user.src, "Edit src: '" .. file .. "' to run")
-  end
-
-  return user
-end
-
---- gives the string for the specified vcs.
--- @param vcs choose which DVCS to use. If 'git' not given, then auto to 'hg'.
-function vcs_str(vcs)
-  return vcs == 'git' and
-    "git init; git add -A; git commit -m 'initial commit'" or
-    "hg init; hg commit -Am 'initial commit'"
+--  templates:write_line(loc, "main.lua", "--- " .. name .. "\n", "r+")
 end
 
 --- creates the intialized directory for the love project.
@@ -71,7 +33,7 @@ local function build_env(loc, name, src, user, vcs)
   templates:copy(loc, {"config.ld", "conf.lua", "main.lua"}, src or user.src)
   append_files(loc, name, user)
 
-  os.execute("cd " .. loc .. ";" .. vcs_str(vcs))
+  os.execute("cd " .. loc .. ";" .. common.vcs_str(vcs))
 end
 
 --- a temporary table for command run.
