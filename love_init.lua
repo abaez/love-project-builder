@@ -93,7 +93,7 @@ local function build_env(loc, name, src, user, vcs)
   copy_templates(loc, {"config.ld", "conf.lua", "main.lua"}, src or user.src)
   append_files(loc, name, user)
 
-  os.execute("cd " .. loc .. ";" .. vcs)
+  os.execute("cd " .. loc .. ";" .. vcs_str(vcs))
 end
 
 --- a temporary table for command run.
