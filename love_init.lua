@@ -4,12 +4,21 @@
 -- @license MIT (see @{LICENSE})
 -- @module love_init
 
-local common = require("common")
-local templates = require("templates")
-local user = require("user")
-
 local _CONF = io.popen("echo $HOME"):read() .. "/.love_init.conf"
 
+local common = false
+local templates = false
+local user = false
+
+--- loads module files from src.
+-- @param file the configuration file.
+-- @param src see @{user}.
+function load_mod(file, src)
+  package.path = (src or dofile(file).src) .. "/?.lua;" .. package.path
+  common = require("common")
+  templates = require("templates")
+  user = require("user")
+end
 
 --- appends from template with basic settings.
 -- @param loc see @{loc}.
@@ -65,7 +74,7 @@ local help = [=[
 if #arg == 0 or arg[1] == '-h' then
   print(help)
 elseif arg[1] == '-s' then
-  user:get(_CONF, arg[2])
+  require("user"):get(_CONF, arg[2])
 else
   assert(arg[1] ~= '-d' and arg[1] ~= '-p', help)
   tmp.name = arg[1]
@@ -81,6 +90,7 @@ else
       end
     end
 
+    load_mod(_CONF, tmp.src)
     print("making environment project: " .. tmp.name)
     build_env(
       tmp.loc or tmp.cwd .. tmp.name,
@@ -89,6 +99,7 @@ else
       user:get(_CONF, tmp.src),
       tmp.vcs)
   else
+    load_mod(_CONF, tmp.src)
     print("making environment project: " .. tmp.name)
     build_env(tmp.cwd .. tmp.name,
               tmp.name,
