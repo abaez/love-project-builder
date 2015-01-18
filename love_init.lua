@@ -6,6 +6,7 @@
 
 local common = require("common")
 local templates = require("templates")
+local user = require("user")
 
 local _CONF = io.popen("echo $HOME"):read() .. "/.love_init.conf"
 
@@ -64,7 +65,7 @@ local help = [=[
 if #arg == 0 or arg[1] == '-h' then
   print(help)
 elseif arg[1] == '-s' then
-  get_user(_CONF, arg[2])
+  user:get(_CONF, arg[2])
 else
   assert(arg[1] ~= '-d' and arg[1] ~= '-p', help)
   tmp.name = arg[1]
@@ -85,14 +86,14 @@ else
       tmp.loc or tmp.cwd .. tmp.name,
       tmp.name,
       tmp.src,
-      get_user(_CONF, tmp.src),
+      user:get(_CONF, tmp.src),
       tmp.vcs)
   else
     print("making environment project: " .. tmp.name)
     build_env(tmp.cwd .. tmp.name,
               tmp.name,
               tmp.src,
-              get_user(_CONF, tmp.src),
+              user:get(_CONF, tmp.src),
               tmp.vcs)
   end
 end
