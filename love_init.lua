@@ -4,44 +4,22 @@
 -- @license MIT (see @{LICENSE})
 -- @module love_init
 
+local templates = require("templates")
+
 local _CONF = io.popen("echo $HOME"):read() .. "/.love_init.conf"
 
---- writes a line to the file selected.
--- @param loc location of the file.
--- @param file to write to.
--- @param str to write.
--- @param m optional mode for file to write. Defaults to "a+" if left empty.
-local function write_line(loc, file, str, m)
-  io.open(loc .. "/" .. file, m or "a+"):write(str):close()
-end
-
---- copies the templates to their destination.
--- @param loc see @{loc}.
--- @param templates a table containing the name of the template files.
--- @param src see @{src}.
-local function copy_templates(loc, templates, src)
-  local templates = templates or user.templates
-
-  for _, template in ipairs(templates) do
-    local ftemplate = io.open(loc .. "/" .. template, "w")
-    for line in io.open(src .. "/templates/" .. template):lines() do
-      ftemplate:write(line, "\n")
-    end
-    ftemplate:close()
-  end
-end
 
 --- appends from template with basic settings.
 -- @param loc see @{loc}.
 -- @param name see @{name}.
 -- @param user see @{user}.
 local function append_files(loc, name, user)
-  write_line(loc, "config.ld", string.format(
+  templates:writ_line(loc, "config.ld", string.format(
     "project = %q\n  title = %q", name, name .. " docs"))
-  write_line(loc, "conf.lua", string.format(
+  templates:writ_line(loc, "conf.lua", string.format(
     "  t.title  = %q\n  t.author = %q\n  t.url = %q\nend",
     name, user.author, user.url))
---  write_line(loc, "main.lua", "--- " .. name .. "\n", "r+")
+--  templates:writ_line(loc, "main.lua", "--- " .. name .. "\n", "r+")
 end
 
 --- makes the config file for love_init
@@ -90,7 +68,7 @@ end
 -- @param user see @{user}.
 local function build_env(loc, name, src, user, vcs)
   assert(os.execute("mkdir " .. loc), "Couldn't make: " .. loc)
-  copy_templates(loc, {"config.ld", "conf.lua", "main.lua"}, src or user.src)
+  templates:copy(loc, {"config.ld", "conf.lua", "main.lua"}, src or user.src)
   append_files(loc, name, user)
 
   os.execute("cd " .. loc .. ";" .. vcs_str(vcs))
