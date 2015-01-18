@@ -17,7 +17,7 @@ local _CONF = io.popen("echo $HOME"):read() .. "/.love_init.conf"
 -- @param user see @{user}.
 local function append_files(loc, name, user)
   templates:write_line(loc, "config.ld", string.format(
-    "project = %q\n  title = %q", name, name .. " docs"))
+    "project = %q\ntitle = %q", name, name .. " docs"))
   templates:write_line(loc, "conf.lua", string.format(
     "  t.title  = %q\n  t.author = %q\n  t.url = %q\nend",
     name, user.author, user.url))
