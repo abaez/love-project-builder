@@ -21,8 +21,8 @@ function load_mod(file, src)
 end
 
 --- appends from template with basic settings.
--- @param loc see @{loc}.
--- @param name see @{name}.
+-- @param loc see @{build_env| loc}.
+-- @param name see @{build_env| name}.
 -- @param user see @{user}.
 local function append_files(loc, name, user)
   templates:write_line(loc, "config.ld", string.format(
@@ -47,10 +47,10 @@ local function build_env(loc, name, src, user, vcs)
 end
 
 --- a temporary table for command run.
--- @src see @{src}.
--- @name see @{name}.
--- @loc see @{loc}.
--- @vcs see @{vcs}.
+-- @src see @{build_env| src}.
+-- @name see @{build_env| name}.
+-- @loc see @{build_env| loc}.
+-- @vcs see @{common.vcs_str| vcs}.
 local tmp = {
   src = false,
   name = false,
