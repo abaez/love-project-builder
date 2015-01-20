@@ -27,7 +27,7 @@ function M:get(file, src)
   local user = ""
   if not io.open(file) then
     assert(src, "run with [-s <source>] argument")
-    make_conf(file, src)
+    self:make(file, src)
   else
     user = dofile(file, "t")
     assert(user.src, "Edit src: '" .. file .. "' to run")
